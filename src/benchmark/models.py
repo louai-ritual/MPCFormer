@@ -9,6 +9,7 @@ import crypten.nn as cnn
 import crypten.communicator as comm
 
 from utils import softmax_2RELU, activation_quad
+from utils import softmax_2RELU, activation_quad, softmax_PUMA, activation_newGeLU_PUMA
 
 class Bert(cnn.Module):
     def __init__(self, config, timing):
@@ -156,6 +157,8 @@ class BertSelfAttention(cnn.Module):
         elif config.softmax_act == "softmax_2QUAD":
             self.norm = cnn.BatchNorm2d(config.hidden_size, eps=config.layer_norm_eps)
             self.smax = softmax_2QUAD(self.norm, dim=-1)
+        elif config.softmax_act == "softmax_PUMA":
+            self.smax = softmax_PUMA()
         else:
             raise ValueError(f"softmax type {config.softmax_act} not implemented.")
         self.timing = timing
@@ -250,6 +253,8 @@ class BertIntermediate(cnn.Module):
             self.intermediate_act_fn = cnn.ReLU()
         elif config.hidden_act == "quad":
             self.intermediate_act_fn = activation_quad()
+        elif config.hidden_act == "gelu_PUMA":
+            self.intermediate_act_fn = activation_newGeLU_PUMA()
         else:
             raise ValueError(f"activation type {config.hidden_act} not implemented")
         self.timing = timing
